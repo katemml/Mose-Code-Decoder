@@ -1,0 +1,37 @@
+Description
+Our program continuously takes user’s input in the form of Morse Code of chars and numbers from the FPGA board and displays the decoded chars on the computer with a python program. 
+
+Tools
+FPGA board, peripheral module (pmod), Spyder, Morse Code tree graph
+
+Working Principal 
+The Verilog program detects the state of the input (a switch) on every rising edge of a 5Hz clock and uses the transmit module to read the sequential states to the computer. For example, a sequence like 
+00010111111111000000000000111100110001000000... is recorded. Then a python program is written to translate the sequence into chars. There are several interpretations of the blocks of 0s and 1s based on their length: (A block of X means a sequence of X’s surrounded by ~X’s)
+  Length of block of 1’s < 8  ---> a dot is detected.
+Length of block of 1’s  >= 8 ---> a dash is detected.
+Length of block of 0’s  = 8   ---> the char ends
+Length of block of 0’s = 16  ---> the word ends
+Length of bock of 0’s = 40   ---> the program terminates
+An LED is set to shine in an appropriate frequency to give the user reference to manipulate the switch. 
+
+
+Trouble shooting
+1.       The handling of the function of the START button in our transmit module
+Different from the transmit module talked in class where the user pushes a start button to send one byte to the computer, our program avoids the using of an external START button. In fact, it would be very inefficient if the user needs to push the button every time he wants the computer to record the state of the switch. Initially we simply abandoned start button, however later we found it necessary to have one because the transmit module needs a flag whose value changes from 1 to 0 in order to begin the transmit process. Otherwise the project would be user-unfriendly by making one starts input as soon as the program starts. In the end we made the start button an internal signal.
+2.       Finding proper Hz of the clock and the LED
+It took us many trials to set the frequency of the clock to a proper value so that the user has enough time to manipulate the switch to desired result, for example --- telling the difference of a dot and a dash, and at the same time doesn’t have to wait too long to input the next dot or dash.
+ 
+ 
+3.       Decoding implementation and unfamiliarity with Python
+Teammates at first encountered dissent on how to decode the Morse code. Kate was thinking of writing 36 if-else statements, while Weixing found a binary tree representation of Morse Code. Finally we wrote a find_char function which is both easy to understand and efficient. We also learned much about coding style of Python. 
+
+
+Run the Decoder
+To run the decoder of Morse Code, one should follow the steps bellow:
+Turn on the FPGA Board and put all switches to ‘off’ state;
+Check the COM FPGA is using to transmit data to the computer and change to appropriate one in the python program;
+Start the python program and input code on FPGA Board by switching the last switch (turn on the switch for a short period for dot and long period for dash);
+Turn off the switch and wait for approximately half flash of the LED to see the output of character on the screen;
+Turn off the switch and wait for approximately half flash after the last character of a word is appeared to add a space ‘ ’;
+Turn off the switch and wait for approximately one flash after the last word is appeared and the python program will automatically terminate;
+Interrupting the python program at any stage before its automatic termination requires a manually close of COM by typing a.close(). 
